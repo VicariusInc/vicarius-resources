@@ -1,0 +1,1 @@
+0 */24 * * * cd /usr/src/app && /usr/local/bin/python /usr/src/app/scripts/VickyTopiaReportCLI.py --allreports >> /var/log/crontab.log 2>&1

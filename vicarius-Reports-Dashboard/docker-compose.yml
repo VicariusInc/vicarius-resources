@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+
+  appdb:
+    image: 127.0.0.1:5000/vrx-reports-appdb:latest
+    restart: always
+
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+#    labels:
+#      - "traefik.http.routers.metabasereports.entrypoints=web,websecure"
+#      - "traefik.http.routers.metabase.rule=Host(`db.example.com`)"
+#      - "traefik.http.routers.metabase.tls=true"
+#      - "traefik.http.routers.metabase.tls.certresolver=prod"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - vicarius-network
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+
+  app:
+    image: 127.0.0.1:5000/vrx-reports-app:latest
+    restart: always
+#    labels:
+#      - "traefik.enabled=false"
+    volumes:
+      - ./app/reports:/usr/src/app/reports
+      - ./app/logs:/var/log
+      - ./app/scripts:/usr/src/app/scripts
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - vicarius-network
+    secrets:
+      - api_key
+      - dashboard_id
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - optional_tools
+volumes:
+  postgres-data:
+
+networks:
+  vicarius-network:
+    attachable: true
+
+
+secrets:
+  api_key:
+    external: true
+  dashboard_id:
+    external: true
+  postgres_db:
+    external: true
+  postgres_user:
+    external: true
+  postgres_password:
+    external: true
+  optional_tools:
+    external: true
